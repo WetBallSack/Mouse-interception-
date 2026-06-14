@@ -1,0 +1,51 @@
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = HIDClass
+ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+Provider    = %ManufacturerName%
+CatalogFile = VirtualMouse.cat
+DriverVer   = 06/14/2026,1.0.0.0
+PnpLockDown = 1
+
+[DestinationDirs]
+DefaultDestDir = 13
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+VirtualMouse.sys = 1,,
+
+[Manufacturer]
+%ManufacturerName% = Standard,NT$ARCH$.10.0...17134
+
+[Standard.NT$ARCH$.10.0...17134]
+%VirtualMouse.DeviceDesc% = VirtualMouse_Install, Root\VirtualMouse
+
+[VirtualMouse_Install.NT]
+CopyFiles = VirtualMouse_CopyFiles
+
+[VirtualMouse_CopyFiles]
+VirtualMouse.sys
+
+[VirtualMouse_Install.NT.HW]
+AddReg = VirtualMouse_AddReg
+
+[VirtualMouse_AddReg]
+HKR,,DeviceCharacteristics,0x10001,0x100
+
+[VirtualMouse_Install.NT.Services]
+AddService = VirtualMouse,0x00000002,VirtualMouse_Service
+
+[VirtualMouse_Service]
+DisplayName    = %VirtualMouse.SvcDesc%
+ServiceType    = 1
+StartType      = 3
+ErrorControl   = 1
+ServiceBinary  = %13%\VirtualMouse.sys
+
+[Strings]
+ManufacturerName        = "Mouse Interception Project"
+DiskName                = "VirtualMouse Installation Disk"
+VirtualMouse.DeviceDesc = "VirtualMouse VHF Relative Mouse"
+VirtualMouse.SvcDesc    = "VirtualMouse VHF Service"
