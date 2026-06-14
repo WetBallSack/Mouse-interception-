@@ -6,6 +6,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VirtualMouse", "VirtualMous
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Relay", "Relay\Relay.vcxproj", "{8F2D7E22-2D6F-4B5A-AA7C-9D63B7C2AE01}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RelayDll", "RelayDll\RelayDll.vcxproj", "{2E1B9C44-3D88-4F1A-8B91-44A1C2F77B22}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Injector", "Injector\Injector.vcxproj", "{93A5C6F1-2A8C-49B7-9D2A-7F8B0D1EAD33}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -22,6 +26,14 @@ Global
 		{8F2D7E22-2D6F-4B5A-AA7C-9D63B7C2AE01}.Debug|x64.Build.0 = Debug|x64
 		{8F2D7E22-2D6F-4B5A-AA7C-9D63B7C2AE01}.Release|x64.ActiveCfg = Release|x64
 		{8F2D7E22-2D6F-4B5A-AA7C-9D63B7C2AE01}.Release|x64.Build.0 = Release|x64
+		{2E1B9C44-3D88-4F1A-8B91-44A1C2F77B22}.Debug|x64.ActiveCfg = Debug|x64
+		{2E1B9C44-3D88-4F1A-8B91-44A1C2F77B22}.Debug|x64.Build.0 = Debug|x64
+		{2E1B9C44-3D88-4F1A-8B91-44A1C2F77B22}.Release|x64.ActiveCfg = Release|x64
+		{2E1B9C44-3D88-4F1A-8B91-44A1C2F77B22}.Release|x64.Build.0 = Release|x64
+		{93A5C6F1-2A8C-49B7-9D2A-7F8B0D1EAD33}.Debug|x64.ActiveCfg = Debug|x64
+		{93A5C6F1-2A8C-49B7-9D2A-7F8B0D1EAD33}.Debug|x64.Build.0 = Debug|x64
+		{93A5C6F1-2A8C-49B7-9D2A-7F8B0D1EAD33}.Release|x64.ActiveCfg = Release|x64
+		{93A5C6F1-2A8C-49B7-9D2A-7F8B0D1EAD33}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
