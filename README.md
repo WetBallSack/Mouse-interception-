@@ -34,6 +34,12 @@ Relay/                         Userspace relay (C++17, MSVC)
   MouseHook.{h,cpp}            WH_MOUSE_LL safety-net hook
   main.cpp                     Startup / shutdown
   Relay.vcxproj
+RelayDll/                      Per-process payload DLL (C++17, MSVC)
+  dllmain.cpp                  Spawns worker, opens driver, installs detour
+  RelayDll.vcxproj             (reuses Relay/KernelMouseRelay.cpp + SendInputDetour.cpp)
+Injector/                      Standalone injector (C++17, MSVC)
+  Injector.cpp                 inject <pid> | launch <exe> [args]
+  Injector.vcxproj
 third_party/minhook/           (place MinHook headers + minhook.x64.lib here)
 ```
 
@@ -60,7 +66,11 @@ Open `VirtualMouseSolution.sln` in Visual Studio 2022 and build the
 
 - `VirtualMouse/`: `VirtualMouse.sys`, `VirtualMouse.inf`,
   `VirtualMouse.cat`.
-- `Relay/`: `relay.exe`.
+- `Relay/`: `relay.exe` (standalone host + WH_MOUSE_LL global safety net).
+- `RelayDll/`: `relay.dll` (per-process payload that opens the driver and
+  installs the `SendInput` detour inside whichever process loads it).
+- `Injector/`: `injector.exe` (loads `relay.dll` into existing processes
+  by PID or into freshly-launched processes via `CREATE_SUSPENDED`).
 
 ## Installing the driver (test machine)
 
@@ -95,19 +105,55 @@ Uninstall:
 devcon remove Root\VirtualMouse
 ```
 
-## Running the relay
+## Running
 
-```cmd
-relay.exe
-```
+There are two roles:
 
-`relay.exe` opens `\\.\VirtualMouse`, installs the MinHook detour on
-`user32!SendInput`, and starts the `WH_MOUSE_LL` safety-net hook on a
-dedicated time-critical thread. While it is running, any in-process
-`SendInput` call carrying `INPUT_MOUSE` entries is converted into a
-`MOUSE_INPUT_REPORT` and routed through the driver. Non-mouse
-(`INPUT_KEYBOARD`, `INPUT_HARDWARE`) entries pass through to the real
-`SendInput`. `Ctrl+C` cleanly tears everything down.
+1. **`relay.exe` — global controller.** Opens `\\.\VirtualMouse`, installs
+   the per-process MinHook detour on `user32!SendInput` (for its own
+   process), and starts the system-wide `WH_MOUSE_LL` safety net hook
+   on a dedicated time-critical thread. `Ctrl+C` cleanly tears it down.
+
+   ```cmd
+   relay.exe
+   ```
+
+2. **`relay.dll` + `injector.exe` — covering arbitrary other processes.**
+   `relay.dll` contains exactly the per-process payload (open driver +
+   install `SendInput` detour). `injector.exe` loads it into a target
+   process. Place `relay.dll` next to `injector.exe` (or pass
+   `--dll <path>`).
+
+   Attach to an already-running process by PID:
+
+   ```cmd
+   injector.exe inject 1234
+   ```
+
+   Launch a fresh process with the payload pre-loaded (created
+   `CREATE_SUSPENDED`, DLL injected, then resumed — no race window):
+
+   ```cmd
+   injector.exe launch "C:\Path\To\Target.exe" --some --args
+   ```
+
+   Override the DLL path:
+
+   ```cmd
+   injector.exe --dll C:\custom\relay.dll inject 1234
+   ```
+
+Once the DLL is loaded inside a target process, every `SendInput` call
+in that process carrying `INPUT_MOUSE` entries is intercepted, converted
+to a `MOUSE_INPUT_REPORT`, and routed through `VirtualMouse.sys`.
+Non-mouse (`INPUT_KEYBOARD`, `INPUT_HARDWARE`) entries pass through to
+the real `SendInput`. `MOUSEEVENTF_ABSOLUTE` events are skipped (the
+VHF device is relative-only).
+
+The injector and the target process must match bitness: `relay.dll` is
+x64-only, so target processes must also be native x64 (the injector
+refuses WOW64 targets up front). Injecting into a process you do not
+own typically requires Administrator (or the `SeDebugPrivilege`).
 
 ## Notes / constraints
 
